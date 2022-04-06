@@ -23,7 +23,6 @@ Blue cursor for `<stpt>`, orange cursor for current target and `<stpc>`
 
 ![Imgur](https://i.imgur.com/5aZniIz.png)
 
-
 ### Party hpp%
 
 Enabled automatically when switching main job to DRG. TODO: only enable it with subjobs that allow healing breathe. Will need to figure out how to detect subjob change. If anyone can help please let me know.
@@ -37,10 +36,10 @@ Can be toggled manually with `/hud hpp`
 * The addon in its current state only support default theme. Other themes had not been updated to be compatible and had been removed from this repository
 
 ## Commands
-/hud lock: Allow you to move the hud with left click, doing this command again lock it back so it won't intercept mouse.\
-/hud hide: Show/Hide the hud\
-/hud debug: Show the id of the buffs/debuffs\
-/hud theme nameOfTheTheme: Change the theme
+`/hud lock`: Allow you to move the hud with left click, doing this command again lock it back so it won't intercept mouse.\
+`/hud hide`: Show/Hide the hud\
+`/hud debug`: Show the id of the buffs/debuffs\
+
 
 ## Recurrent problem
 If the hud disappear randomly, it means memory location used to detect if the chat is expanded is not correct (due to an update or modified client)\
