@@ -1,10 +1,10 @@
 {
 	
 	"background_alpha": 0,
-	
+
 	"distance_between_players": {
 			"x": 0,
-			"y": 45
+			"y": 35
 	},
 	
 	"gauges": {
@@ -75,13 +75,14 @@
 			},
 			
 			"numbers": {
-				"small": true,
+				"small": false,
 				"align_right": true,
 				
 				"position_relative_to_gauge":{
-						"x": 105,
-						"y": -8
+						"x": 110,
+						"y": -4
 				}
+				
 			}
 		},
 		
@@ -97,12 +98,24 @@
 			},
 			
 			"numbers": {
-				"display": false,
+				"display": true,
 				"small": true,
 				
 				"position_relative_to_gauge":{
-						"x": 23,
-						"y": -5
+					"x": 43,
+					"y": -4
+				},
+				"color": {
+					"100": {
+						"r": 0.25,
+						"g": 1,
+						"b": 0.25
+					},
+					"34": {
+						"r": 1,
+						"g": 1,
+						"b": 1
+					}
 				}
 			},
 			
@@ -123,7 +136,6 @@
 				"x": 0,
 				"y": 10
 		},
-			
 		"format": "png",
 		"number_images": 6,
 		
@@ -134,15 +146,32 @@
 		"cursor5": "5.png",
 		"cursor6": "6.png",
 		
-		"alpha": 0.5,
+		"alpha": 1.0,
 		"change_after_x_frames": 5,
-		
 		"gap_with_gauges": 3
+	},
+
+	"subcursor": {
+		"position_from_player_origin": {
+				"x": 0,
+				"y": 10
+		},
+		"format": "png",
+		"alpha": 1.0,
+		"change_after_x_frames": 5,
+		"gap_with_gauges": 3,
+		"number_images": 6,
 		
+		"cursor1": "sub1.png",
+		"cursor2": "sub2.png",
+		"cursor3": "sub3.png",
+		"cursor4": "sub4.png",
+		"cursor5": "sub5.png",
+		"cursor6": "sub6.png"
 	},
 	
 	"buffs": {
-		"icon_size": 16,
+		"icon_size": 20,
 		"format": "png",
 		
 		"buffs_position_from_player_origin": {
@@ -154,6 +183,30 @@
 			"x": 215,
 			"y": 19
 		}
+	},
+
+	"target_gauge": {
+		"display": true,
+		"y": 40,
+		"name":{
+			"display": true,
+			"max_letters": 13,
+			"x": 6,
+			"y": -3
+		},
+		"hpp":{
+			"display": true,
+			"x": 140,
+			"y": 15
+		},
+		"distance":{
+			"display": true,
+			"x": 200,
+			"y": 10
+		}
+	},
+
+	"hpp":{
+		"width": 40
 	}
-	
 }

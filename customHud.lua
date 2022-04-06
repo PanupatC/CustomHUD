@@ -26,6 +26,7 @@ local playersDebuffs = {}
 -- Hold textures
 local images = {}
 local cursor = {}
+local subcursor = {}
 
 -- Constants
 local jobs = {"war", "mnk", "whm", "blm", "rdm", "thf", "pld", "drk", "bst", "brd", "rng", "sam", "nin", "drg", "smn", "blu", "cor", "pup", "dnc", "sch", "geo", "run"}
@@ -42,6 +43,8 @@ local hide = false
 
 local cursorFrame = 1
 local cursorIndex = 1
+local subcursorFrame = 1
+local subcursorIndex = 1
 local numberPartyMembers
 local widthPerMember
 local posXForCenterAlignment = 0
@@ -72,13 +75,16 @@ function onLoad()
 
 	-- Load the settings
 	config = ashita.settings.load_merged(_addon.path .. "\settings.json", config)
-	
 	-- Get the amount of party members
 	numberPartyMembers = AshitaCore:GetDataManager():GetParty():GetAllianceParty0MemberCount()
 	
 	-- If there is a specific theme for that job, use this one instead
-	if(config.groupsPerJob[jobs[jobId]] ~= nil and config.groupsPerJob[jobs[jobId]].theme ~= nil) then
-		config.theme = config.groupsPerJob[jobs[jobId]].theme;
+	-- if(config.groupsPerJob[jobs[jobId]] ~= nil and config.groupsPerJob[jobs[jobId]].theme ~= nil) then
+	-- 	config.theme = config.groupsPerJob[jobs[jobId]].theme;
+	-- end
+
+	if(config.groupsPerJob[jobs[jobId]] ~= nil and config.groupsPerJob[jobs[jobId]].hpp ~= nil) then
+		config.hpp = config.groupsPerJob[jobs[jobId]].hpp;
 	end
 	
 	loadAddonConfiguration(jobId)
@@ -180,13 +186,22 @@ function loadAddonConfiguration(jobId)
 		ignored[buffId] = true
 	end
 	
-	-- Load the UI images
-	if(ashita.file.dir_exists(_addon.path .. "themes\\" .. config.theme)) then
-		loadTheme(config.theme)
+	if(config.groupsPerJob[jobs[jobId]] ~= nil and config.groupsPerJob[jobs[jobId]].hpp ~= nil) then
+		config.hpp = true;
 	else
-		print("Folder " .. _addon.path .. "themes\\" .. config.theme .. " does not exist, using default theme.")
-		loadTheme("default")
+		config.hpp = nil;
 	end
+
+	-- Load the UI images
+	-- if(ashita.file.dir_exists(_addon.path .. "themes\\" .. config.theme)) then
+	-- 	loadTheme(config.theme)
+	-- else
+	-- 	print("Folder " .. _addon.path .. "themes\\" .. config.theme .. " does not exist, using default theme.")
+	-- 	loadTheme("default")
+	-- end
+	loadTheme("default")
+
+
 	
 	-- Update current player buffs
 	updateCurrentPlayerBuffs()
@@ -273,10 +288,10 @@ function loadTheme(theme)
 			end
 			
 			if(config.ui.gauges.tp.milestones["3000"] ~= nil) then
-				loadImage(config.ui.gauges.tp.milestones["3000"].image, path .. "\\gauges\\" .. config.ui.gauges.tp.milestones["3000"].image)
+				loadImage(config.ui.gauges.tp.milestones["3000"].image, path .. "\\gauges\\" .. config.ui.gauges.tp.milestones["1000"].image)
 			end
 		end
-		
+
 	end
 	
 	-- Font
@@ -298,18 +313,20 @@ function loadTheme(theme)
 			loadImage("ellipsis", path .. "\\font\\" .. "ellipsis" .. "." .. config.ui.font.format)
 			loadImage("-", path .. "\\font\\" .. "-" .. "." .. config.ui.font.format)
 			loadImage("'", path .. "\\font\\" .. "'" .. "." .. config.ui.font.format)
+			loadImage("(", path .. "\\font\\" .. "(" .. "." .. config.ui.font.format)
+			loadImage(")", path .. "\\font\\" .. ")" .. "." .. config.ui.font.format)
+			loadImage("space", path .. "\\font\\" .. "space" .. "." .. config.ui.font.format)
+			loadImage("%", path .. "\\font\\" .. "percent" .. "." .. config.ui.font.format)
+			loadImage(".", path .. "\\font\\" .. "dot" .. "." .. config.ui.font.format)
 		end
 	end
 	
 	-- Cursor
 	if(config.ui.cursor ~= nil) then
 		cursor["width"], cursor["height"] = getImageDimensions(path .. "\\cursor\\1." .. config.ui.cursor.format)
-		if(config.ui.cursor.number_images == nil) then
-			cursor[1] = createTexture(path .. "\\cursor\\1." .. config.ui.cursor.format, cursor["width"], cursor["height"])
-		else
-			for x=1, config.ui.cursor.number_images do
-				cursor[x] = createTexture(path .. "\\cursor\\" .. x .. "." .. config.ui.cursor.format, cursor["width"], cursor["height"])
-			end
+		for x=1, config.ui.cursor.number_images do
+			cursor[x] = createTexture(path .. "\\cursor\\" .. x .. "." .. config.ui.cursor.format, cursor["width"], cursor["height"])
+			subcursor[x] = createTexture(path .. "\\cursor\\sub" .. x .. "." .. config.ui.cursor.format, cursor["width"], cursor["height"])
 		end
 	end
 	
@@ -330,6 +347,10 @@ function loadTheme(theme)
 	if (config.ui.distance_between_players.align_x_center == true) then
 		widthPerMember = getWidthPerMember()
 		posXForCenterAlignment = calculatePosXForCenterAlignment()
+	end
+
+	if (config.ui.hpp == nil) then
+		config.ui.hpp = {[width] = 40}
 	end
 end
 
@@ -569,15 +590,16 @@ ashita.register_event('outgoing_packet', function(id, size, packet)
 		--{ctype='unsigned char', label='Main Job'}, -- 04
 		local mainJob = struct.unpack('B', packet, 0x04 + 1);
 		
+		config.theme = "default"
 		-- If main job changed, reload the addon configuration
 		if(mainJob ~= 0 and mainJob ~= AshitaCore:GetDataManager():GetPlayer():GetMainJob()) then
 			
 			-- If there is a specific theme for that job
-			if(config.groupsPerJob[jobs[mainJob]] ~= nil and config.groupsPerJob[jobs[mainJob]].theme ~= nil) then
-				config.theme = config.groupsPerJob[jobs[mainJob]].theme;
-			else
-				config.theme = "default"
-			end
+			-- if(config.groupsPerJob[jobs[mainJob]] ~= nil and config.groupsPerJob[jobs[mainJob]].theme ~= nil) then
+			-- 	config.theme = config.groupsPerJob[jobs[mainJob]].theme;
+			-- else
+			-- 	config.theme = "default"
+			-- end
 			
 			loadAddonConfiguration(mainJob)
 		end
@@ -678,6 +700,14 @@ ashita.register_event('render', function()
 		return
 	end
 
+    local party = AshitaCore:GetDataManager():GetParty();
+    if (party:GetMemberActive(0) == false or party:GetMemberServerId(0) == 0) then
+		hide = true
+        return;
+	else
+		hide = false
+	end
+
 	-- Refresh current player's buffs if necessary
 	if (refreshCurrentPlayer == true) then
 		refreshCurrentPlayer = false;
@@ -703,7 +733,7 @@ ashita.register_event('render', function()
 	-- Don't display if chat window expanded and option is set in config
 	if (hideHUD() == true) then
 		imgui.Begin(
-			'customHud.' .. config.theme,
+			'customHud.default',
 			nil, -- bool p_open?
 			1, 1, -- Size on first use?
 			0, -- Background Alpha
@@ -714,7 +744,7 @@ ashita.register_event('render', function()
 	end
 	
 	imgui.Begin(
-		'customHud.' .. config.theme,
+		'customHud.default',
 		nil, -- bool p_open?
 		1, 1, -- Size on first use?
 		config.ui.background_alpha, -- Background Alpha
@@ -737,15 +767,21 @@ ashita.register_event('render', function()
 		local posX, posY = imgui.GetWindowPos()
 		imgui.SetWindowPos(posXForCenterAlignment, posY)
 	end
-	
+
+
+
 	-- For each player of the party
+	target_id = AshitaCore:GetDataManager():GetTarget():GetTargetServerId()
+	st_index = GetStPartyIndex()
 	for x = 0, 5 do
 		local playerServerId = AshitaCore:GetDataManager():GetParty():GetMemberServerId(x)
 		
 		if (playerServerId > 0) then
 			local playerStartPositionX = 1 + x * config.ui.distance_between_players.x -- On the X axis not adding 1 cause the first row of pixel to be out of the frame
 			local playerStartPositionY = x * config.ui.distance_between_players.y
-			
+			-- +5 to make room for moving text upwards
+			playerStartPositionY = playerStartPositionY + config.ui.target_gauge["y"] + 5
+
 			-- Player Background image
 			if (images["playerBackground"] ~= nil) then
 				imgui.SetCursorPos(playerStartPositionX, playerStartPositionY)
@@ -759,21 +795,27 @@ ashita.register_event('render', function()
 		
 			-- If the player is targeted draw the cursor
 			if (config.ui.cursor ~= nil) then
-				if playerServerId == AshitaCore:GetDataManager():GetTarget():GetTargetServerId() then
-					local xCursorOffset = 0
-					local yCursorOffset = 0
-					if ( config.ui.cursor.position_from_player_origin ~= nil) then
-						xCursorOffset = config.ui.cursor.position_from_player_origin.x
-						yCursorOffset = config.ui.cursor.position_from_player_origin.y
-					end
-				
-					drawCursor(playerStartPositionX + xCursorOffset, playerStartPositionY + yCursorOffset)
+				local xCursorOffset = 0
+				local yCursorOffset = 0
+				if ( config.ui.cursor.position_from_player_origin ~= nil) then
+					xCursorOffset = config.ui.cursor.position_from_player_origin.x
+					yCursorOffset = config.ui.cursor.position_from_player_origin.y
 				end
 				
+				use_cursor = nil
+				if (st_index ~= nil and st_index == x) then
+					use_cursor = subcursor
+				elseif playerServerId == target_id then
+					use_cursor = cursor
+				end
+				if (use_cursor ~= nil) then
+					drawCursor(playerStartPositionX + xCursorOffset, playerStartPositionY + yCursorOffset, use_cursor)
+				end
+
 				if(config.ui.cursor.gap_with_gauges ~= nil) then
 					playerStartPositionX = playerStartPositionX + cursor["width"] + config.ui.cursor.gap_with_gauges
 				end
-			end
+			end	
 			
 			-- HP, MP and TP gauges
 			drawGauge(playerStartPositionX, playerStartPositionY, "hp", AshitaCore:GetDataManager():GetParty():GetMemberCurrentHPP(x)/100)
@@ -787,7 +829,7 @@ ashita.register_event('render', function()
 			-- HP, MP and TP numbers
 			drawNumbers(playerStartPositionX, playerStartPositionY, "mp", AshitaCore:GetDataManager():GetParty():GetMemberCurrentMP(x), GetMemberName)
 			drawNumbers(playerStartPositionX, playerStartPositionY, "hp", AshitaCore:GetDataManager():GetParty():GetMemberCurrentHP(x), AshitaCore:GetDataManager():GetParty():GetMemberCurrentHPP(x))
-			drawNumbers(playerStartPositionX, playerStartPositionY, "tp", AshitaCore:GetDataManager():GetParty():GetMemberCurrentTP(x), AshitaCore:GetDataManager():GetParty():GetMemberCurrentTP(x)/3000)
+			drawNumbers(playerStartPositionX, playerStartPositionY, "tp", AshitaCore:GetDataManager():GetParty():GetMemberCurrentTP(x), AshitaCore:GetDataManager():GetParty():GetMemberCurrentTP(x)/30)
 			drawMilestones(playerStartPositionX, playerStartPositionY, AshitaCore:GetDataManager():GetParty():GetMemberCurrentTP(x))
 			
 			-- Player Info
@@ -818,6 +860,77 @@ ashita.register_event('render', function()
 			
 		end
 	end
+	
+	-- if (config.targetBar) then
+	gconfig = config.ui.target_gauge
+	if (gconfig ~= nil and gconfig["display"] ~= nil) then
+		local target = AshitaCore:GetDataManager():GetTarget();
+		local party = AshitaCore:GetDataManager():GetParty();
+
+		
+		if (gconfig.name == nil or gconfig.name.display == nil or config.ui.gauges.name.display == false) then
+			-- skip per config value
+		elseif (target:GetTargetEntityPointer() == nil or
+			target:GetTargetName() == '' or
+			target:GetTargetServerId() == 0 or
+			target:GetTargetServerId() == party:GetMemberServerId(0)) then
+				-- skip when self is targetted
+		else
+			tid = target:GetTargetServerId()
+			if (tid ~= nil) then
+				local tentity = GetEntity(target:GetTargetIndex());
+				if (tentity ~= nil) then
+					spawn = tentity.SpawnFlags
+					if (spawn==1 or spawn==13 or spawn==16) then
+						-- 1=Player, 13=PT member, 16=Monster
+						name = tentity.Name
+						hpp = tentity.HealthPercent
+						distance = string.format('%.1f', math.sqrt(tentity.Distance))
+
+						
+						x = cursor["width"] + config.ui.cursor.gap_with_gauges
+						y = 5
+						drawGauge(x, y, "hp", hpp/100)
+
+						-- calculate position here instead of in function
+						if (gconfig["name"]["display"]) then
+							
+							if(gconfig.name.x ~= nil) then
+								tmpX = x + gconfig.name.x
+							end
+							if(gconfig.name.y ~= nil) then
+								tmpY = y + gconfig.name.y
+							end
+							drawText(tmpX,tmpY,name)
+						end
+
+						if (gconfig["hpp"]["display"]) then
+							if(gconfig.hpp.x ~= nil) then
+								tmpX = x + gconfig.hpp.x
+							end
+							if(gconfig.hpp.y ~= nil) then
+								tmpY = y + gconfig.hpp.y
+							end
+							text = tostring(hpp).."%"
+							drawText(tmpX,tmpY,text)
+						end
+
+						if (gconfig["distance"]["display"]) then
+							if(gconfig.distance.x ~= nil) then
+								tmpX = x + gconfig.distance.x
+							end
+							if(gconfig.distance.y ~= nil) then
+								tmpY = y + gconfig.distance.y
+							end
+							drawText(tmpX,tmpY,distance)
+						end
+					end
+				end
+			end
+
+		end
+	end
+
 	
 	imgui.End()
 	
@@ -853,35 +966,28 @@ function isExpandedChat()
 	return chatExpandedValue ~= 0
 end
 
-function drawCursor(cursorX, cursorY)
+function drawCursor(cursorX, cursorY, cursor_to_use)
+	cursor_to_use = cursor_to_use or cursor
 	imgui.SetCursorPos(cursorX, cursorY)
 	
-	if(config.ui.cursor.number_images == nil or config.ui.cursor.number_images == 1) then
-		imgui.Image(cursor[1]:Get(), 
-			cursor["width"], cursor["height"], -- Size
-			0, 0, -- UV
-			1, 1, -- UV1
-			1, 1, 1, config.ui.cursor.alpha -- Color
-		)
-	else
-		imgui.Image(cursor[cursorIndex]:Get(), 
-			cursor["width"], cursor["height"], -- Size
-			0, 0, -- UV
-			1, 1, -- UV1
-			1, 1, 1, config.ui.cursor.alpha -- Color
-		)
-		
-		if(cursorFrame == config.ui.cursor.change_after_x_frames) then
-			cursorFrame = 1
-			if cursorIndex == config.ui.cursor.number_images then
-				cursorIndex = 1
-			else
-				cursorIndex = cursorIndex + 1
-			end
+	imgui.Image(cursor_to_use[cursorIndex]:Get(), 
+		cursor["width"], cursor["height"], -- Size
+		0, 0, -- UV
+		1, 1, -- UV1
+		1, 1, 1, config.ui.cursor.alpha -- Color
+	)
+	
+	if(cursorFrame == config.ui.cursor.change_after_x_frames) then
+		cursorFrame = 1
+		if cursorIndex == config.ui.cursor.number_images then
+			cursorIndex = 1
 		else
-			cursorFrame = cursorFrame + 1
+			cursorIndex = cursorIndex + 1
 		end
+	else
+		cursorFrame = cursorFrame + 1
 	end
+
 end
 
 function drawGauge(cursorX, cursorY, gaugeType, ratio)
@@ -917,6 +1023,10 @@ function drawGauge(cursorX, cursorY, gaugeType, ratio)
 end
 
 function drawTPTripleFill(cursorX, cursorY, tp)
+	if tp >= 1000 then
+		tp = (tp-1000)/2 + 2000
+	end
+	
 	if(config.ui.gauges.tp.position_from_player_origin ~= nil) then
 		cursorX = cursorX + config.ui.gauges.tp.position_from_player_origin.x
 		cursorY = cursorY + config.ui.gauges.tp.position_from_player_origin.y
@@ -1042,7 +1152,6 @@ function drawName(cursorX, cursorY, name)
 			
 		end
 		
-		
 		if string.match(c, "%u") then
 			c = c:lower().."_maj"
 		end
@@ -1057,6 +1166,46 @@ function drawName(cursorX, cursorY, name)
 	end
 	
 end
+
+function drawText(x, y, text)
+	gconfig = config.ui.target_gauge
+
+	imgui.SetCursorPos(x, y)
+	imgui.Text("")
+	
+	local nbLetter = 0
+	for c in text:gmatch(".") do
+		if (gconfig.name.max_letters ~= nil) then
+			nbLetter = nbLetter +1
+			-- Trucate if longer than max_letters
+			if (nbLetter > gconfig.name.max_letters) then
+				imgui.SameLine(0, 0)
+				imgui.Image(images["ellipsis"]["texture"]:Get(), 
+					images["ellipsis"]["width"], images["ellipsis"]["height"], -- Size
+					0, 0, -- UV
+					1, 1, -- UV1
+					1, 1, 1, 1 -- Color
+				)
+				break
+			end
+		end
+		
+		if string.match(c, "%u") then
+			c = c:lower().."_maj"
+		end
+		if (c == " ") then
+			c = "space"
+		end
+		imgui.SameLine(0, 0)
+		imgui.Image(images[c]["texture"]:Get(), 
+			images[c]["width"], images[c]["height"], -- Size
+			0, 0, 1, 1, -- UV
+			1, 1, 1, 1 -- Color
+		)
+	end
+end
+
+
 
 function drawNumbers(cursorX, cursorY, gaugeType, value, ratio)
 	-- If no definition for numbers or explictly asked to not display
@@ -1083,7 +1232,9 @@ function drawNumbers(cursorX, cursorY, gaugeType, value, ratio)
 			cursorX = cursorX - images[c]["width"]
 		end
 	end
-	
+	if (config.hpp == true and gaugeType == "hp") then
+		cursorX = cursorX - config.ui.hpp["width"]
+	end
 	imgui.SetCursorPos(cursorX, cursorY)
 	imgui.Text("")
 	
@@ -1101,6 +1252,50 @@ function drawNumbers(cursorX, cursorY, gaugeType, value, ratio)
 			1, 1, -- UV1
 			r, g, b, a -- Color
 		)
+
+		cursorX = cursorX + images[c]["width"]
+	end
+
+	-- if(gaugeType == "hp" and config.ui.gauges.hp.hpp == true and ratio) then
+	if(gaugeType == "hp" and config.hpp == true and ratio) then
+		cursorX = cursorX + 5
+		cursorY = cursorY + 2
+		imgui.SetCursorPos(cursorX, cursorY)
+		imgui.Text("")
+		r,g,b,a = 1,1,1,1
+		
+		c = "("
+		imgui.SameLine(0, 0)
+		imgui.Image(
+			images[c]["texture"]:Get(), 
+			images[c]["width"], images[c]["height"], -- Size
+			0, 0, -- UV
+			1, 1, -- UV1
+			r, g, b, a -- Color
+		)
+
+		for c in tostring(ratio):gmatch(".") do
+			c = c.."small"
+			imgui.SameLine(0, 0)
+			imgui.Image(
+				images[c]["texture"]:Get(), 
+				images[c]["width"], images[c]["height"], -- Size
+				0, 0, -- UV
+				1, 1, -- UV1
+				r, g, b, a -- Color
+			)
+		end
+		
+		c = ")"
+		imgui.SameLine(0, 0)
+		imgui.Image(
+			images[c]["texture"]:Get(), 
+			images[c]["width"], images[c]["height"], -- Size
+			0, 0, -- UV
+			1, 1, -- UV1
+			r, g, b, a -- Color
+		)
+
 	end
 end
 
@@ -1283,67 +1478,98 @@ ashita.register_event('command', function(cmd, nType)
     local args = cmd:args()
 	
 	if (#args == 0 ) then
-		return false
+		return false;
 	end
 	
     if (string.lower(args[1]) ~= '/customhud' and string.lower(args[1]) ~= '/hud') then
-        return false
+        return false;
     end
 	
-	-- Toggle debug on/off
-	if (#args == 2 and string.lower(args[2]) == 'debug') then
-        debug = not debug
-        return true
-    end
-	
-	-- Toggle position locked on/off
-	if (#args == 2 and (string.lower(args[2]) == 'lock' or string.lower(args[2]) == 'locked')) then
-        locked = not locked
-		if(locked == true) then
-			print("HUD position locked")
-		else
-			print("You can now move the HUD with left click")
-		end
-        return true
-    end
-	
-	-- Toggle position locked on/off
-	if (#args == 2 and string.lower(args[2]) == 'unlock') then
-        locked = false
-		print("You can now move the HUD with left click")
-        return true
-    end
-	
-	-- Toggle display of non grouped buffs
-	if (#args == 2 and (string.lower(args[2]) == 'buffs' or string.lower(args[2]) == 'ungrouped')) then
-        showUngroupedBuffs = not showUngroupedBuffs
-		if(showUngroupedBuffs == true) then
-			print("Ungrouped buffs will be shown")
-		else
-			print("Ungrouped buffs will be hidden")
-		end
-        return true
-    end
-	
-	-- Hide
-	if (#args == 2 and string.lower(args[2]) == "hide") then
-		hide = not hide
-		return true
-	end
-	
-	-- Theme change
-	if (#args == 3 and string.lower(args[2]) == "theme") then
-		if(ashita.file.dir_exists(_addon.path .. "themes\\" .. string.lower(args[3]))) then
-			-- Load theme
-			config.theme = string.lower(args[3])
-			images = {}
-			loadAddonConfiguration(AshitaCore:GetDataManager():GetPlayer():GetMainJob())
-		else
-			print("Missing folder for theme " .. string.lower(args[3]) .. " (" .. _addon.path .. "themes\\" .. string.lower(args[3]) .. ")")
-		end
+
+	if (#args == 2) then
+		local cmd = string.lower(args[2])
 		
-		return true
-	end
-	
-    return true;
+		if (cmd == 'debug') then
+			-- Toggle debug on/off
+        	debug = not debug
+
+		elseif (cmd == 'lock' or cmd == 'locked') then
+			-- Toggle position locked on/off
+			locked = not locked
+			if(locked == true) then
+				print("HUD position locked")
+			else
+				print("You can now move the HUD with left click")
+			end
+
+		elseif (cmd == 'buffs' or cmd == 'ungrouped') then
+			-- Toggle display of non grouped buffs
+			showUngroupedBuffs = not showUngroupedBuffs
+			if(showUngroupedBuffs == true) then
+				print("Ungrouped buffs will be shown")
+			else
+				print("Ungrouped buffs will be hidden")
+			end
+
+		elseif (cmd == "hide") then
+			hide = not hide
+				
+		elseif (cmd == 'hpp') then
+			config.hpp = not config.hpp
+			if (config.hpp == true) then
+				print("Disabling HPP")
+			else
+				print("Enabling HPP")
+			end
+
+		elseif (cmd == "tg") then
+			config.ui.target_gauge["display"] = not config.ui.target_gauge["display"]
+			if (config.ui.target_gauge["display"] == true) then
+				print("Enabling target gauge")
+			else
+				print("Disabling target gauge")
+			end
+
+		elseif (cmd == "x") then
+			test()
+
+		else
+			return false;
+		end
+
+		return true;
+    end
+
+	return false;
+
+
 end);
+
+function GetStPartyIndex()
+    local ptr = AshitaCore:GetPointerManager():GetPointer('party');
+    ptr = ashita.memory.read_uint32(ptr);
+    ptr = ashita.memory.read_uint32(ptr);
+    local isActive = (ashita.memory.read_uint32(ptr + 0x54) ~= 0);
+    if isActive then
+        return ashita.memory.read_uint8(ptr + 0x50);
+    else
+        return nil;
+    end
+end
+
+function test(x)
+	-- print(AshitaCore:GetDataManager():GetTarget():GetSubTargetServerId())
+	-- print(AshitaCore:GetDataManager():GetTarget():GetTargetServerId())
+	print(GetStPartyIndex())
+	-- x = x or "nothing"
+	-- print(x)
+	-- mainjob = AshitaCore:GetDataManager():GetPlayer():GetMainJob()
+	-- subjob = AshitaCore:GetDataManager():GetPlayer():GetSubJob()
+	-- print(mainjob)
+	-- print(subjob)
+	-- 14=DRG, 3=WHM, 5=RDM,7=PLD, 16=BLU, 20=SCH
+	-- target = AshitaCore:GetDataManager():GetTarget();
+	-- tentity = GetEntity(target:GetTargetIndex());
+	-- print(tentity.SpawnFlags)
+end
+
