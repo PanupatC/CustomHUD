@@ -2,14 +2,14 @@
 
 Original addon can be found at [Syllendel/CustomHUD](https://github.com/Syllendel/CustomHUD)
 
-Tested on, Ashita 3 @Wings server.
+Tested on Ashita 3 @Wings server.
 
 ## Extended features
 
 
 ### Target HP gauge
 
-This gauge should show up when you select other players or monsters. Name, hpp% and distance can be turned off in `themes/default/theme_settings.json`
+The gauge should display when you target other players or mobs with hp/Name, hpp% and distance can be turned off in `themes/default/theme_settings.json`
 
 Can be toggled on/off with `/hud tg` (tg for Target Gauge)
 
@@ -26,7 +26,7 @@ Blue cursor for `<stpt>`, orange cursor for current target and `<stpc>`
 
 ### Party hpp%
 
-Added mainly to support my DRG main job. Should turn on automatically when switching to DRG/support mage job
+Enabled automatically when switching main job to DRG. 
 
 Can be toggled manually with `/hud hpp`
 

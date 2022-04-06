@@ -83,9 +83,6 @@ function onLoad()
 	-- 	config.theme = config.groupsPerJob[jobs[jobId]].theme;
 	-- end
 
-	if(config.groupsPerJob[jobs[jobId]] ~= nil and config.groupsPerJob[jobs[jobId]].hpp ~= nil) then
-		config.hpp = config.groupsPerJob[jobs[jobId]].hpp;
-	end
 	
 	loadAddonConfiguration(jobId)
 	
@@ -185,8 +182,6 @@ function loadAddonConfiguration(jobId)
 		--print("Debuff: " .. buffId)
 		ignored[buffId] = true
 	end
-	
-	config.hpp = checkJobHpp()
 
 	-- Load the UI images
 	-- if(ashita.file.dir_exists(_addon.path .. "themes\\" .. config.theme)) then
@@ -195,9 +190,12 @@ function loadAddonConfiguration(jobId)
 	-- 	print("Folder " .. _addon.path .. "themes\\" .. config.theme .. " does not exist, using default theme.")
 	-- 	loadTheme("default")
 	-- end
+	if (jobId == 14) then
+		config.hpp = true
+	else
+		config.hpp = false
+	end
 	loadTheme("default")
-
-
 	
 	-- Update current player buffs
 	updateCurrentPlayerBuffs()
@@ -213,13 +211,15 @@ function getJobConfig(jobId)
 	end
 end
 
-function checkJobHpp()
-	mainjob = AshitaCore:GetDataManager():GetPlayer():GetMainJob()
-	subjob = AshitaCore:GetDataManager():GetPlayer():GetSubJob()
+function checkJobHpp(mainjob, subjob)
+	mainjob = mainjob or AshitaCore:GetDataManager():GetPlayer():GetMainJob()
+	subjob = subjob or AshitaCore:GetDataManager():GetPlayer():GetSubJob()
 	-- 14=DRG, 3=WHM, 5=RDM,7=PLD, 16=BLU, 20=SCH
 	if (mainjob == 14) then
+		print("DRG")
 		if (subjob==3 or subjob==5 or
 		    subjob==7 or subjob==16 or subjob==20) then
+				print("match")
 				return true
 		end
 	end
@@ -606,15 +606,14 @@ ashita.register_event('outgoing_packet', function(id, size, packet)
 		config.theme = "default"
 		-- If main job changed, reload the addon configuration
 		if(mainJob ~= 0 and mainJob ~= AshitaCore:GetDataManager():GetPlayer():GetMainJob()) then
-			-- If there is a specific theme for that job
-			-- if(config.groupsPerJob[jobs[mainJob]] ~= nil and config.groupsPerJob[jobs[mainJob]].theme ~= nil) then
-			-- 	config.theme = config.groupsPerJob[jobs[mainJob]].theme;
-			-- else
-			-- 	config.theme = "default"
-			-- end
-			
+			if (mainJob == 14) then
+				config.hpp = true
+			else
+				config.hpp = false
+			end
 			loadAddonConfiguration(mainJob)
 		end
+		
 	end
 	
 	return false
@@ -1572,15 +1571,16 @@ function GetStPartyIndex()
 end
 
 function test(x)
+	x = x or "nothing"
 	-- print(AshitaCore:GetDataManager():GetTarget():GetSubTargetServerId())
 	-- print(AshitaCore:GetDataManager():GetTarget():GetTargetServerId())
-	print(GetStPartyIndex())
-	-- x = x or "nothing"
+	-- print(GetStPartyIndex())
+
 	-- print(x)
-	-- mainjob = AshitaCore:GetDataManager():GetPlayer():GetMainJob()
-	-- subjob = AshitaCore:GetDataManager():GetPlayer():GetSubJob()
-	-- print(mainjob)
-	-- print(subjob)
+	mainjob = AshitaCore:GetDataManager():GetPlayer():GetMainJob()
+	subjob = AshitaCore:GetDataManager():GetPlayer():GetSubJob()
+	print(mainjob)
+	print(subjob)
 	-- 14=DRG, 3=WHM, 5=RDM,7=PLD, 16=BLU, 20=SCH
 	-- target = AshitaCore:GetDataManager():GetTarget();
 	-- tentity = GetEntity(target:GetTargetIndex());
