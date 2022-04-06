@@ -26,7 +26,7 @@ Blue cursor for `<stpt>`, orange cursor for current target and `<stpc>`
 
 ### Party hpp%
 
-Enabled automatically when switching main job to DRG. 
+Enabled automatically when switching main job to DRG. TODO: only enable it with subjobs that allow healing breathe. Will need to figure out how to detect subjob change. If anyone can help please let me know.
 
 Can be toggled manually with `/hud hpp`
 
