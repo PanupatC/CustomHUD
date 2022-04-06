@@ -186,11 +186,7 @@ function loadAddonConfiguration(jobId)
 		ignored[buffId] = true
 	end
 	
-	if(config.groupsPerJob[jobs[jobId]] ~= nil and config.groupsPerJob[jobs[jobId]].hpp ~= nil) then
-		config.hpp = true;
-	else
-		config.hpp = nil;
-	end
+	config.hpp = checkJobHpp()
 
 	-- Load the UI images
 	-- if(ashita.file.dir_exists(_addon.path .. "themes\\" .. config.theme)) then
@@ -215,6 +211,19 @@ function getJobConfig(jobId)
 		print("Using default groups config")
 		return config.groupsPerJob["default"]
 	end
+end
+
+function checkJobHpp()
+	mainjob = AshitaCore:GetDataManager():GetPlayer():GetMainJob()
+	subjob = AshitaCore:GetDataManager():GetPlayer():GetSubJob()
+	-- 14=DRG, 3=WHM, 5=RDM,7=PLD, 16=BLU, 20=SCH
+	if (mainjob == 14) then
+		if (subjob==3 or subjob==5 or
+		    subjob==7 or subjob==16 or subjob==20) then
+				return true
+		end
+	end
+	return false
 end
 
 function loadGroupsFromConfig(jobConfig, groups)
@@ -593,7 +602,6 @@ ashita.register_event('outgoing_packet', function(id, size, packet)
 		config.theme = "default"
 		-- If main job changed, reload the addon configuration
 		if(mainJob ~= 0 and mainJob ~= AshitaCore:GetDataManager():GetPlayer():GetMainJob()) then
-			
 			-- If there is a specific theme for that job
 			-- if(config.groupsPerJob[jobs[mainJob]] ~= nil and config.groupsPerJob[jobs[mainJob]].theme ~= nil) then
 			-- 	config.theme = config.groupsPerJob[jobs[mainJob]].theme;
@@ -607,6 +615,8 @@ ashita.register_event('outgoing_packet', function(id, size, packet)
 	
 	return false
 end);
+
+
 
 ---------------------------------------------------------------------------------------------------
 -- func: incoming_packet
@@ -863,7 +873,7 @@ ashita.register_event('render', function()
 	
 	-- if (config.targetBar) then
 	gconfig = config.ui.target_gauge
-	if (gconfig ~= nil and gconfig["display"] ~= nil) then
+	if (config.target_gauge == true) then
 		local target = AshitaCore:GetDataManager():GetTarget();
 		local party = AshitaCore:GetDataManager():GetParty();
 
@@ -1523,8 +1533,8 @@ ashita.register_event('command', function(cmd, nType)
 			end
 
 		elseif (cmd == "tg") then
-			config.ui.target_gauge["display"] = not config.ui.target_gauge["display"]
-			if (config.ui.target_gauge["display"] == true) then
+			config.target_gauge = not config.target_gauge
+			if (config.target_gauge == true) then
 				print("Enabling target gauge")
 			else
 				print("Disabling target gauge")
