@@ -1,6 +1,8 @@
 # CustomHUD Extended
 
-Original addon can be found at its creator [Syllendel/CustomHUD](https://github.com/Syllendel/CustomHUD)
+Original addon can be found at [Syllendel/CustomHUD](https://github.com/Syllendel/CustomHUD)
+
+Tested on, Ashita 3 @Wings server.
 
 ## Extended features
 
@@ -9,9 +11,30 @@ Original addon can be found at its creator [Syllendel/CustomHUD](https://github.
 
 This gauge should show up when you select other players or monsters. Name, hpp% and distance can be turned off in `themes/default/theme_settings.json`
 
-The gauge can be toggled on/off with command `/hud tg` (tg for Target Gauge)
+Can be toggled on/off with `/hud tg` (tg for Target Gauge)
 
 ![Imgur](https://imgur.com/RhFMNAD.png)
+
+### Sub-target cursor
+
+Blue cursor for `<stpt>`, orange cursor for current target and `<stpc>`
+
+![Imgur](https://i.imgur.com/syQijWY.png)
+
+![Imgur](https://i.imgur.com/5aZniIz.png)
+
+
+### Party hpp%
+
+Added mainly to support my DRG main job. Should turn on automatically when switching to DRG/support mage job
+
+Can be toggled manually with `/hud hpp`
+
+![imgur](https://i.imgur.com/mRgbyFE.png)
+
+## Cut features
+
+* The addon in its current state only support default theme. Other themes had not been updated to be compatible and had been removed from this repository
 
 ## Commands
 /hud lock: Allow you to move the hud with left click, doing this command again lock it back so it won't intercept mouse.\

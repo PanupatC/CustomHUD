@@ -4,7 +4,7 @@
 
     "distance_between_players": {
         "x": 0,
-        "y": 35
+        "y": 40
     },
 
     "gauges": {
@@ -160,14 +160,9 @@
         "alpha": 1.0,
         "change_after_x_frames": 5,
         "gap_with_gauges": 3,
-        "number_images": 6,
+        "number_images": 1,
 
-        "cursor1": "sub1.png",
-        "cursor2": "sub2.png",
-        "cursor3": "sub3.png",
-        "cursor4": "sub4.png",
-        "cursor5": "sub5.png",
-        "cursor6": "sub6.png"
+        "cursor1": "sub1.png"
     },
 
     "buffs": {

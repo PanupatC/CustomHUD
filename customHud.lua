@@ -333,10 +333,14 @@ function loadTheme(theme)
 	-- Cursor
 	if(config.ui.cursor ~= nil) then
 		cursor["width"], cursor["height"] = getImageDimensions(path .. "\\cursor\\1." .. config.ui.cursor.format)
+		subcursor["width"], subcursor["height"] = getImageDimensions(path .. "\\cursor\\1." .. config.ui.cursor.format)
+		
 		for x=1, config.ui.cursor.number_images do
 			cursor[x] = createTexture(path .. "\\cursor\\" .. x .. "." .. config.ui.cursor.format, cursor["width"], cursor["height"])
-			subcursor[x] = createTexture(path .. "\\cursor\\sub" .. x .. "." .. config.ui.cursor.format, cursor["width"], cursor["height"])
+			subcursor[x] = createTexture(path .. "\\cursor\\sub" .. x .. "." .. config.ui.subcursor.format, subcursor["width"], subcursor["height"])
 		end
+	
+
 	end
 	
 	-- Player info 
