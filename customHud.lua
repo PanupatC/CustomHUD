@@ -70,12 +70,15 @@ function onLoad()
 	if(jobId == 0) then
 		return
 	end
-	
+
+	subjobId = AshitaCore:GetDataManager():GetPlayer():GetSubJob()
 	ashita.timer.stop("delayedLoadTimer")
 
 	-- Load the settings
 	config = ashita.settings.load_merged(_addon.path .. "\settings.json", config)
+	config.hpp = checkJobHpp(jobId, subjobId)
 	-- Get the amount of party members
+
 	numberPartyMembers = AshitaCore:GetDataManager():GetParty():GetAllianceParty0MemberCount()
 	
 	-- If there is a specific theme for that job, use this one instead
@@ -190,11 +193,6 @@ function loadAddonConfiguration(jobId)
 	-- 	print("Folder " .. _addon.path .. "themes\\" .. config.theme .. " does not exist, using default theme.")
 	-- 	loadTheme("default")
 	-- end
-	if (jobId == 14) then
-		config.hpp = true
-	else
-		config.hpp = false
-	end
 	loadTheme("default")
 	
 	-- Update current player buffs
@@ -216,10 +214,8 @@ function checkJobHpp(mainjob, subjob)
 	subjob = subjob or AshitaCore:GetDataManager():GetPlayer():GetSubJob()
 	-- 14=DRG, 3=WHM, 5=RDM,7=PLD, 16=BLU, 20=SCH
 	if (mainjob == 14) then
-		print("DRG")
 		if (subjob==3 or subjob==5 or
 		    subjob==7 or subjob==16 or subjob==20) then
-				print("match")
 				return true
 		end
 	end
@@ -602,16 +598,18 @@ ashita.register_event('outgoing_packet', function(id, size, packet)
 	if(id == 0x100) then
 		--{ctype='unsigned char', label='Main Job'}, -- 04
 		local mainJob = struct.unpack('B', packet, 0x04 + 1);
+		local subJob = struct.unpack('B', packet, 0x05 + 1);
 		
 		config.theme = "default"
+
 		-- If main job changed, reload the addon configuration
 		if(mainJob ~= 0 and mainJob ~= AshitaCore:GetDataManager():GetPlayer():GetMainJob()) then
-			if (mainJob == 14) then
-				config.hpp = true
-			else
-				config.hpp = false
-			end
+			config.hpp = checkJobHpp(mainJob, nil)
 			loadAddonConfiguration(mainJob)
+		end
+		if(subJob ~= 0 and subJob ~= AshitaCore:GetDataManager():GetPlayer():GetSubJob()) then
+			config.hpp = checkJobHpp(nil, subJob)
+			loadAddonConfiguration(AshitaCore:GetDataManager():GetPlayer():GetMainJob())
 		end
 		
 	end
