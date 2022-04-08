@@ -6,12 +6,9 @@ Tested on Ashita 3 @Wings server.
 
 ## Extended features
 
-
 ### Target HP gauge
 
-The gauge should display when you target other players or mobs with hp/Name, hpp% and distance can be turned off in `themes/default/theme_settings.json`
-
-Can be toggled on/off with `/hud tg` (tg for Target Gauge)
+`/hud tg` to toggle manually (tg for Target Gauge). Name, hpp% and distance can be turned off and adjusted positions in `themes/default/theme_settings.json`
 
 ![Imgur](https://imgur.com/RhFMNAD.png)
 
@@ -20,27 +17,25 @@ Can be toggled on/off with `/hud tg` (tg for Target Gauge)
 Blue cursor for `<stpt>`, orange cursor for current target and `<stpc>`
 
 ![Imgur](https://i.imgur.com/syQijWY.png)
-
 ![Imgur](https://i.imgur.com/5aZniIz.png)
 
 ### Party hpp%
 
-Can be toggled manually with `/hud hpp`
+`/hud hpp` to toggle manually. Will be enabled automatically if job set to DRG/support with healing breathe
 
 ![imgur](https://i.imgur.com/mRgbyFE.png)
 
-Enabled automatically when switching to DRG/support with healing breathe.
-
-![imgur](https://imgur.com/s3JLiqP.mp4)
 
 ## Cut features
 
-* The addon in its current state only support default theme. Other themes had not been updated to be compatible and had been removed from this repository
+* No longer support additional theme. Only default theme was updated and compatible.
 
 ## Commands
-`/hud lock`: Allow you to move the hud with left click, doing this command again lock it back so it won't intercept mouse.\
-`/hud hide`: Show/Hide the hud\
-`/hud debug`: Show the id of the buffs/debuffs\
+`/hud lock` : enable/disable position change with mouse drag\
+`/hud hide` : Show/Hide the hud\
+`/hud tg` : show/hide target gauge\
+`/hud hpp` : show/hide HP%
+
 
 
 ## Recurrent problem
