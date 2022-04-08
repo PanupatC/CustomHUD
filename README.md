@@ -36,7 +36,10 @@ Blue cursor for `<stpt>`, orange cursor for current target and `<stpc>`
 `/hud tg` : show/hide target gauge\
 `/hud hpp` : show/hide HP%
 
+## TODO
 
+* Lockon indication
+* settings to have hp% in front of hp number
 
 ## Recurrent problem
 If the hud disappear randomly, it means memory location used to detect if the chat is expanded is not correct (due to an update or modified client)\
