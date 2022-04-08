@@ -1,6 +1,7 @@
-_addon.author   = 'Syllendel (Syll#3694)';
-_addon.name     = 'customHud';
-_addon.version  = '0.25';
+_addon.original_author = 'Syllendel (Syll#3694)'
+_addon.author = 'Jaza (Jaza#6599)';
+_addon.name = 'customHud';
+_addon.version = '1.1.0';
 
 require 'common'
 require 'd3d8'
@@ -896,6 +897,7 @@ ashita.register_event('render', function()
 						-- 1=Player, 13=PT member, 16=Monster
 						name = tentity.Name
 						hpp = tentity.HealthPercent
+						status = tentity.Status
 						distance = string.format('%.1f', math.sqrt(tentity.Distance))
 
 						
@@ -905,14 +907,18 @@ ashita.register_event('render', function()
 
 						-- calculate position here instead of in function
 						if (gconfig["name"]["display"]) then
-							
+							if (status==0) then
+								r,g,b = 1,1,1
+							else
+								r,g,b = 1,0.5,0.5
+							end
 							if(gconfig.name.x ~= nil) then
 								tmpX = x + gconfig.name.x
 							end
 							if(gconfig.name.y ~= nil) then
 								tmpY = y + gconfig.name.y
 							end
-							drawText(tmpX,tmpY,name)
+							drawText(tmpX,tmpY,name, r,g,b)
 						end
 
 						if (gconfig["hpp"]["display"]) then
@@ -1178,7 +1184,11 @@ function drawName(cursorX, cursorY, name)
 	
 end
 
-function drawText(x, y, text)
+function drawText(x, y, text, r,g,b,a)
+	r = r or 1
+	g = g or 1
+	b = b or 1
+	a = a or 1
 	gconfig = config.ui.target_gauge
 
 	imgui.SetCursorPos(x, y)
@@ -1193,9 +1203,8 @@ function drawText(x, y, text)
 				imgui.SameLine(0, 0)
 				imgui.Image(images["ellipsis"]["texture"]:Get(), 
 					images["ellipsis"]["width"], images["ellipsis"]["height"], -- Size
-					0, 0, -- UV
-					1, 1, -- UV1
-					1, 1, 1, 1 -- Color
+					0,0,1,1, -- UV
+					r,g,b,a -- Color
 				)
 				break
 			end
@@ -1211,7 +1220,7 @@ function drawText(x, y, text)
 		imgui.Image(images[c]["texture"]:Get(), 
 			images[c]["width"], images[c]["height"], -- Size
 			0, 0, 1, 1, -- UV
-			1, 1, 1, 1 -- Color
+			r,g,b,a -- Color
 		)
 	end
 end
