@@ -1,7 +1,7 @@
 _addon.original_author = 'Syllendel (Syll#3694)'
 _addon.author = 'Jaza (Jaza#6599)';
 _addon.name = 'customHud';
-_addon.version = '1.1.0';
+_addon.version = '1.1.1';
 
 require 'common'
 require 'd3d8'
@@ -780,8 +780,6 @@ ashita.register_event('render', function()
 		imgui.SetWindowPos(posXForCenterAlignment, posY)
 	end
 
-
-
 	-- For each player of the party
 	target_id = AshitaCore:GetDataManager():GetTarget():GetTargetServerId()
 	st_index = GetStPartyIndex()
@@ -907,10 +905,10 @@ ashita.register_event('render', function()
 
 						-- calculate position here instead of in function
 						if (gconfig["name"]["display"]) then
-							if (status==0) then
-								r,g,b = 1,1,1
-							else
+							if (spawn==16 and status~=0) then
 								r,g,b = 1,0.5,0.5
+							else
+								r,g,b = 1,1,1							
 							end
 							if(gconfig.name.x ~= nil) then
 								tmpX = x + gconfig.name.x
@@ -948,7 +946,6 @@ ashita.register_event('render', function()
 		end
 	end
 
-	
 	imgui.End()
 	
 end);

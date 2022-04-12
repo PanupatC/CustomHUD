@@ -1,7 +1,11 @@
-## [1.0.0] - 2022-04-08
+## [1.1.1]
+
+* Can't remember what's changed but there's a change.
+
+## [1.1.0] - 2022-04-08
 
 ### Added
-* target name change color if claimed
+* target name change color when claimed
 
 ## [1.0.0] - 2022-04-06
 

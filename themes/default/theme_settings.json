@@ -4,7 +4,7 @@
 
     "distance_between_players": {
         "x": 0,
-        "y": 40
+        "y": 38
     },
 
     "gauges": {
@@ -195,8 +195,8 @@
         },
         "distance": {
             "display": true,
-            "x": 200,
-            "y": 10
+            "x": 210,
+            "y": 8
         }
     },
 
